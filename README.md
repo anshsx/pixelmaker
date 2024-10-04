@@ -18,6 +18,9 @@ This is a web-based application built using Vite, React, TypeScript, Shadcn, and
 
 - **Live Preview**: On clicking the "Generate" button, a preview of the pixel art is displayed on the side.
 
+## Preview
+
+![Pixel Art Grid Generator](./preview-pixelart-maker-2.png)
 ## Usage
 
 1. Clone the repository:
