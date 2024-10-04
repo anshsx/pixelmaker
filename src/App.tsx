@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Appbar from './components/ui/appbar'
 import { DownloadIcon } from 'lucide-react'
+import { convertToPixelArt } from './lib/image-utils'
+
+export type PixelShape = 'square' | 'circle' | 'triangle' | 'hexagon'
 
 export default function Component() {
   const [imageUrl, setImageUrl] = useState('')
@@ -15,68 +18,14 @@ export default function Component() {
   const [aspectRatio, setAspectRatio] = useState(16 / 9)
   const [borderWidth, setBorderWidth] = useState(1)
   const [pixelArtUrl, setPixelArtUrl] = useState('')
+  const [pixelShape, setPixelShape] = useState<PixelShape>('square')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropZoneRef = useRef<HTMLDivElement>(null)
 
-  const convertToPixelArt = useCallback((image: string | File | Blob, gridWidth: number, gridHeight: number, borderWidth: number) => {
-    return new Promise<string>((resolve, reject) => {
-      const img = new Image()
-      img.crossOrigin = "anonymous"
-      img.onload = () => {
-        const canvas = canvasRef.current
-        if (!canvas) return reject('Canvas not found')
 
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return reject('Could not get 2D context')
-
-        // Set canvas size to match the loaded image
-        canvas.width = img.width
-        canvas.height = img.height
-
-        // Draw the image on the canvas
-        ctx.drawImage(img, 0, 0, img.width, img.height)
-
-        // Create pixel art
-        const pixelSize = Math.floor(600 / Math.max(gridWidth, gridHeight)) // Dynamically calculate pixel size
-        const outputCanvas = document.createElement('canvas')
-        outputCanvas.width = gridWidth * pixelSize + (gridWidth + 1) * borderWidth
-        outputCanvas.height = gridHeight * pixelSize + (gridHeight + 1) * borderWidth
-        const outputCtx = outputCanvas.getContext('2d')
-        if (!outputCtx) return reject('Could not get 2D context for output canvas')
-
-        outputCtx.fillStyle = '#000' // Border color
-        outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height)
-
-        for (let y = 0; y < gridHeight; y++) {
-          for (let x = 0; x < gridWidth; x++) {
-            const sourceX = Math.floor(x * (img.width / gridWidth))
-            const sourceY = Math.floor(y * (img.height / gridHeight))
-            const [r, g, b] = ctx.getImageData(sourceX, sourceY, 1, 1).data
-            outputCtx.fillStyle = `rgb(${r},${g},${b})`
-            outputCtx.fillRect(
-              x * pixelSize + (x + 1) * borderWidth,
-              y * pixelSize + (y + 1) * borderWidth,
-              pixelSize,
-              pixelSize
-            )
-          }
-        }
-
-        resolve(outputCanvas.toDataURL())
-      }
-      img.onerror = () => reject('Failed to load image')
-
-      if (typeof image === 'string') {
-        img.src = image
-      } else {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          img.src = e.target?.result as string
-        }
-        reader.readAsDataURL(image)
-      }
-    })
+  const handleConvertToPixelArt = useCallback((image: string | File | Blob, gridWidth: number, gridHeight: number, borderWidth: number,pixelShape:PixelShape) => {
+    return convertToPixelArt(canvasRef, image, gridWidth, gridHeight, borderWidth,pixelShape);
   }, [])
 
   const handleConvert = useCallback(async () => {
@@ -86,12 +35,12 @@ export default function Component() {
         alert('Please provide an image URL, file, or paste an image')
         return
       }
-      const result = await convertToPixelArt(imageSource, gridWidth, gridHeight, borderWidth)
+      const result = await handleConvertToPixelArt(imageSource, gridWidth, gridHeight, borderWidth,pixelShape)
       setPixelArtUrl(result)
     } catch (error) {
       console.error('Error converting image:', error)
     }
-  }, [imageUrl, imageFile, gridWidth, gridHeight, borderWidth, convertToPixelArt])
+  }, [imageUrl, imageFile, gridWidth, gridHeight, borderWidth, handleConvertToPixelArt,pixelShape])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -228,6 +177,15 @@ export default function Component() {
                 onChange={(e) => setBorderWidth(Number(e.target.value))}
                 min={0}
               />
+            </div>
+             <div>
+              <Label htmlFor="grid-width">Shape</Label>
+                <select value={pixelShape} onChange={(e) => { setPixelShape(e.target.value as 'square' | 'circle') }} className='bg-secondary text-secondary-foreground w-full p-2'>
+                  <option value="square">Square</option>
+                  <option value="circle">Circle</option>
+                  <option value="triangle">Triangle</option>
+                  <option value="hexagon">Hexagon</option>
+                </select>
             </div>
             <Button onClick={handleConvert} className="w-full">Convert to Pixel Art</Button>
           </div>
