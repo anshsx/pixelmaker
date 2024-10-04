@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Appbar from './components/ui/appbar'
+import { DownloadIcon } from 'lucide-react'
 
 export default function Component() {
   const [imageUrl, setImageUrl] = useState('')
@@ -163,7 +164,7 @@ export default function Component() {
   return (
     <div>
     <Appbar/>
-      <div className="container mx-auto py-4 min-h-[calc(100vh-64px)] max-w-7xl pt-10">
+      <div className="container mx-auto py-4 min-h-[calc(100vh-64px)] max-w-7xl pt-10 px-4 xl:px-0">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-1/2 space-y-4">
             <div className="space-y-2">
@@ -234,7 +235,20 @@ export default function Component() {
             {pixelArtUrl ? (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Result:</h3>
-                <img src={pixelArtUrl} alt="Pixel Art" className="w-full border border-gray-300" />
+                <div className="relative">
+                  <img src={pixelArtUrl} alt="Pixel Art" className="w-full border border-gray-300" />
+                  <button
+                    className="absolute bottom-4 right-4 p-2 bg-secondary/95  hover:bg-secondary rounded-full "
+                    onClick={() => {
+                      const a = document.createElement('a')
+                      a.href = pixelArtUrl
+                      a.download = 'pixel-art.png'
+                      a.click()
+                    }}
+                  >
+                    <DownloadIcon className=''size={18}/>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="h-full flex items-center justify-center border border-gray-300 rounded-lg">
