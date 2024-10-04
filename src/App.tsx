@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Appbar from './components/ui/appbar'
 
 export default function Component() {
   const [imageUrl, setImageUrl] = useState('')
@@ -160,87 +161,90 @@ export default function Component() {
   }, [handlePaste])
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="w-full lg:w-1/2 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="image-url">Image URL</Label>
-            <Input
-              id="image-url"
-              type="text"
-              placeholder="Enter image URL"
-              value={imageUrl}
-              onChange={(e) => {
-                setImageUrl(e.target.value)
-                setImageFile(null) // Clear file input when URL is entered
-              }}
-            />
-          </div>
-          <div
-            ref={dropZoneRef}
-            className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer"
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <p>Drag & drop an image here, click to select, or paste from clipboard</p>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-            {imageFile && <p className="mt-2">Selected file: {imageFile.name}</p>}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+    <div>
+    <Appbar/>
+      <div className="container mx-auto py-4 min-h-[calc(100vh-64px)] max-w-7xl pt-10">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="w-full lg:w-1/2 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="grid-width">Grid Width</Label>
+              <Label htmlFor="image-url">Image URL</Label>
               <Input
-                id="grid-width"
-                type="number"
-                value={gridWidth}
-                onChange={(e) => handleGridWidthChange(Number(e.target.value))}
-                min={1}
+                id="image-url"
+                type="text"
+                placeholder="Enter image URL"
+                value={imageUrl}
+                onChange={(e) => {
+                  setImageUrl(e.target.value)
+                  setImageFile(null) // Clear file input when URL is entered
+                }}
               />
             </div>
+            <div
+              ref={dropZoneRef}
+              className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer"
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <p>Drag & drop an image here, click to select, or paste from clipboard</p>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
+              {imageFile && <p className="mt-2">Selected file: {imageFile.name}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="grid-width">Grid Width</Label>
+                <Input
+                  id="grid-width"
+                  type="number"
+                  value={gridWidth}
+                  onChange={(e) => handleGridWidthChange(Number(e.target.value))}
+                  min={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="grid-height">Grid Height</Label>
+                <Input
+                  id="grid-height"
+                  type="number"
+                  value={gridHeight}
+                  onChange={(e) => handleGridHeightChange(Number(e.target.value))}
+                  min={1}
+                />
+              </div>
+            </div>
             <div className="space-y-2">
-              <Label htmlFor="grid-height">Grid Height</Label>
+              <Label htmlFor="border-width">Border Width (px)</Label>
               <Input
-                id="grid-height"
+                id="border-width"
                 type="number"
-                value={gridHeight}
-                onChange={(e) => handleGridHeightChange(Number(e.target.value))}
-                min={1}
+                value={borderWidth}
+                onChange={(e) => setBorderWidth(Number(e.target.value))}
+                min={0}
               />
             </div>
+            <Button onClick={handleConvert} className="w-full">Convert to Pixel Art</Button>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="border-width">Border Width (px)</Label>
-            <Input
-              id="border-width"
-              type="number"
-              value={borderWidth}
-              onChange={(e) => setBorderWidth(Number(e.target.value))}
-              min={0}
-            />
+          <div className="w-full lg:w-1/2">
+            {pixelArtUrl ? (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Result:</h3>
+                <img src={pixelArtUrl} alt="Pixel Art" className="w-full border border-gray-300" />
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center border border-gray-300 rounded-lg">
+                <p className="text-gray-500">Pixel art preview will appear here</p>
+              </div>
+            )}
           </div>
-          <Button onClick={handleConvert} className="w-full">Convert to Pixel Art</Button>
         </div>
-        <div className="w-full lg:w-1/2">
-          {pixelArtUrl ? (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Result:</h3>
-              <img src={pixelArtUrl} alt="Pixel Art" className="w-full border border-gray-300" />
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center border border-gray-300 rounded-lg">
-              <p className="text-gray-500">Pixel art preview will appear here</p>
-            </div>
-          )}
-        </div>
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
       </div>
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
-    </div>
+    </div>  
   )
 }
