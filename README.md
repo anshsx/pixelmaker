@@ -18,6 +18,14 @@ This is a web-based application built using Vite, React, TypeScript, Shadcn, and
 
 - **Live Preview**: On clicking the "Generate" button, a preview of the pixel art is displayed on the side.
 
+- **Pixel**: Select between different pixel shapes, including:
+    -  Square
+    -  Circle
+    -  Hexagon
+    
+- **Download** : After generating pixel art, you can download it as a PNG file with a single click using the `Download` icon.
+
+
 ## Preview
 
 ![Pixel Art Grid Generator](./preview-pixelart-maker-2.png)
